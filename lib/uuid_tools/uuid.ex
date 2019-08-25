@@ -1,12 +1,12 @@
 defmodule UUIDTools.UUID do
-  use Bitwise, only_operators: true
-
-  @compile {:inline, e: 1}
   @moduledoc """
   UUIDTools.UUID is a module that handles the generation of UUIDs for [Elixir](http://elixir-lang.org/).
   It follows the [RFC 4122](http://www.ietf.org/rfc/rfc4122.txt).
   """
-  @ets_cache_table_name :uuid_tools
+  use Bitwise, only_operators: true
+
+  @compile {:inline, e: 1}
+
   # 15 Oct 1582 to 1 Jan 1970.
 
   @beginnning_of_time 122_192_928_000_000_000
@@ -393,25 +393,11 @@ defmodule UUIDTools.UUID do
 
   # Get local IEEE 802 (MAC) address, or a random node id if it can't be found.
   defp uuid1_node() do
-    case :ets.info(@ets_cache_table_name) do
-      :undefined ->
-        :ets.new(@ets_cache_table_name, [:named_table, read_concurrency: true])
-        {:ok, ifs0} = :inet.getifaddrs()
-        mac_address = uuid1_node(ifs0)
-        :ets.insert(@ets_cache_table_name, {:mac_address, mac_address})
-        mac_address
-
-      [_ | _] ->
-        case :ets.lookup(@ets_cache_table_name, :mac_address) do
-          [mac_address: mac_address] ->
-            mac_address
-
-          [] ->
-            {:ok, ifs0} = :inet.getifaddrs()
-            mac_address = uuid1_node(ifs0)
-            :ets.insert(@ets_cache_table_name, {:mac_address, mac_address})
-            mac_address
-        end
+    with nil <- :persistent_term.get({__MODULE__, :mac_address}, nil) do
+      {:ok, ifs0} = :inet.getifaddrs()
+      mac_address = uuid1_node(ifs0)
+      :persistent_term.put({__MODULE__, :mac_address}, mac_address)
+      mac_address
     end
   end
 
