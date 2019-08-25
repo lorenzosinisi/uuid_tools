@@ -13,10 +13,12 @@ defp deps do
 end
 ```
 
-### Why we need another UUID library? 
+Required at least OTP 21.3
+
+### Why we need another UUID library?
 
 I am of the idea that we need a UUID set of tools for our Elixir projects that is fast and complete (that is the reason for the name).
-Even if now the library does not seem different than UUID or other erlang versions of it, the direction is to create a swiss knife of unique id generation 
+Even if now the library does not seem different than UUID or other erlang versions of it, the direction is to create a swiss knife of unique id generation
 in our Elixir projects that is fast, complete and relaiable.
 
 
